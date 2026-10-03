@@ -1,0 +1,12 @@
+# Cache Jupyter & Python
+.ipynb_checkpoints/
+__pycache__/
+*.py[cod]
+
+# Environment
+.venv/
+venv/
+
+# Log & temporary
+*.log
+*.pid

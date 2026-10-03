@@ -1,0 +1,52 @@
+name: Preprocessing Dataset Telco Churn
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "namadataset_raw/**"
+      - "preprocessing/automate_Bayu-Septiawan.py"
+      - ".github/workflows/preprocessing.yml"
+  workflow_dispatch:
+
+jobs:
+  preprocessing:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: pip install pandas numpy scikit-learn
+
+      - name: Jalankan preprocessing otomatis
+        run: |
+          python preprocessing/automate_Bayu-Septiawan.py \
+            --raw namadataset_raw/Telco-Customer-Churn.csv \
+            --out preprocessing/namadataset_preprocessing/telco_churn_preprocessing.csv
+
+      - name: Simpan artefak dataset preprocessing
+        uses: actions/upload-artifact@v4
+        with:
+          name: dataset-preprocessing
+          path: preprocessing/namadataset_preprocessing/
+
+      - name: Commit & push dataset preprocessing terbaru
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add preprocessing/namadataset_preprocessing/
+          if git diff --staged --quiet; then
+            echo "Tidak ada perubahan dataset, lewati commit."
+          else
+            git commit -m "chore: update dataset preprocessing otomatis [skip ci]"
+            git push
+          fi
